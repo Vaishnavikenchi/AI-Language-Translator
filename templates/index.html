@@ -1,0 +1,528 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinguaTranslate - AI Language Translator</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+
+    <div class="app-container">
+        <!-- Header -->
+        <header class="app-header">
+            <div class="logo-container">
+                <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="2" y1="12" x2="22" y2="12"/>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+                <span class="logo-text">LinguaTranslate</span>
+                <span class="logo-badge">Pro</span>
+            </div>
+            <p class="subtitle">Experience seamless, real-time AI-powered translation</p>
+        </header>
+
+        <!-- Main Workspace -->
+        <main class="translator-card">
+            <!-- Source Card Panel -->
+            <div class="panel source-panel">
+                <div class="panel-header">
+                    <span class="lang-label">From</span>
+                    <label for="sourceLanguage" class="sr-only">Source Language</label>
+                    <select id="sourceLanguage" class="lang-select">
+                        {% for code, name in languages.items() %}
+                        <option value="{{ code }}" {% if code == 'en' %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="textarea-wrapper">
+                    <textarea 
+                        id="sourceText" 
+                        placeholder="Type or paste your text here..." 
+                        maxlength="5000"
+                        autofocus></textarea>
+                    <button id="clearBtn" class="icon-btn clear-btn" title="Clear text" aria-label="Clear text">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <line x1="18" y1="6" x2="6" y2="18"></line>
+                            <line x1="6" y1="6" x2="18" y2="18"></line>
+                        </svg>
+                    </button>
+                </div>
+                <div class="panel-footer">
+                    <button id="sourceSpeakBtn" class="icon-btn-footer" title="Listen" aria-label="Listen to source text">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                        </svg>
+                    </button>
+                    <span class="char-count"><span id="currentCharCount">0</span> / 5000</span>
+                </div>
+            </div>
+
+            <!-- Controls (Swap Button / Action Button) -->
+            <div class="translator-controls">
+                <button id="swapBtn" class="swap-btn" title="Swap Languages" aria-label="Swap Languages">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="17 1 21 5 17 9"></polyline>
+                        <line x1="3" y1="5" x2="21" y2="5"></line>
+                        <polyline points="7 23 3 19 7 15"></polyline>
+                        <line x1="21" y1="19" x2="3" y2="19"></line>
+                    </svg>
+                </button>
+            </div>
+
+            <!-- Target Card Panel -->
+            <div class="panel target-panel">
+                <div class="panel-header">
+                    <span class="lang-label">To</span>
+                    <label for="targetLanguage" class="sr-only">Target Language</label>
+                    <select id="targetLanguage" class="lang-select">
+                        {% for code, name in languages.items() %}
+                        <option value="{{ code }}" {% if code == 'hi' %}selected{% endif %}>{{ name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="textarea-wrapper output-wrapper">
+                    <div id="targetTextPlaceholder" class="placeholder-text">Translation will appear here...</div>
+                    <div id="targetText" class="translated-content"></div>
+                    
+                    <!-- Loading Shimmer/Spinner overlay -->
+                    <div id="translationLoader" class="loader-overlay hidden">
+                        <div class="spinner"></div>
+                        <span>Translating...</span>
+                    </div>
+                </div>
+                <div class="panel-footer">
+                    <div class="target-actions">
+                        <button id="targetSpeakBtn" class="action-btn speak-btn" title="Listen" aria-label="Listen to translation">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+                                <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                                <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                            </svg>
+                            Listen
+                        </button>
+                        <button id="copyBtn" class="action-btn copy-btn" title="Copy Translation" aria-label="Copy Translation">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+                                <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                                <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                            </svg>
+                            Copy
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </main>
+        
+        <div class="submit-action-container">
+            <button id="translateBtn" class="primary-btn">
+                <span>Translate</span>
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+                    <polygon points="5 3 19 12 5 21 5 3"></polygon>
+                </svg>
+            </button>
+        </div>
+
+        <!-- History Section (Bottom) -->
+        <section id="historySection" class="history-section">
+            <div class="history-header-bar">
+                <div class="history-title-group">
+                    <svg class="history-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <h2>Translation History</h2>
+                </div>
+                <button id="clearHistoryBtn" class="clear-history-btn hidden">
+                    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+                        <polyline points="3 6 5 6 21 6"></polyline>
+                        <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                    </svg>
+                    Clear All
+                </button>
+            </div>
+            
+            <div id="historyEmptyState" class="empty-state">
+                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" class="empty-icon">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12 6 12 12 16 14"></polyline>
+                </svg>
+                <p>No translation history yet</p>
+                <span>Your translations will automatically be saved here.</span>
+            </div>
+
+            <div id="historyGrid" class="history-grid">
+                <!-- History cards injected here -->
+            </div>
+        </section>
+
+        <footer class="app-footer">
+            <p>Powered by Advanced NLP Translation Technology & LinguaTranslate Pro</p>
+        </footer>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast hidden">
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="toast-icon">
+            <polyline points="20 6 9 17 4 12"></polyline>
+        </svg>
+        <span id="toastMessage">Copied to clipboard!</span>
+    </div>
+
+    <script>
+        // DOM Elements
+        const sourceText = document.getElementById('sourceText');
+        const targetText = document.getElementById('targetText');
+        const targetTextPlaceholder = document.getElementById('targetTextPlaceholder');
+        const sourceLanguage = document.getElementById('sourceLanguage');
+        const targetLanguage = document.getElementById('targetLanguage');
+        const charCount = document.getElementById('currentCharCount');
+        const clearBtn = document.getElementById('clearBtn');
+        const swapBtn = document.getElementById('swapBtn');
+        const copyBtn = document.getElementById('copyBtn');
+        const translateBtn = document.getElementById('translateBtn');
+        const loader = document.getElementById('translationLoader');
+        const toast = document.getElementById('toast');
+        const toastMessage = document.getElementById('toastMessage');
+
+        const sourceSpeakBtn = document.getElementById('sourceSpeakBtn');
+        const targetSpeakBtn = document.getElementById('targetSpeakBtn');
+        const clearHistoryBtn = document.getElementById('clearHistoryBtn');
+        const historyGrid = document.getElementById('historyGrid');
+        const historyEmptyState = document.getElementById('historyEmptyState');
+
+        let debounceTimeout;
+        let translationHistory = JSON.parse(localStorage.getItem('translation_history')) || [];
+
+        // Restore language choices from LocalStorage if available
+        if (localStorage.getItem('source_lang')) {
+            sourceLanguage.value = localStorage.getItem('source_lang');
+        }
+        if (localStorage.getItem('target_lang')) {
+            targetLanguage.value = localStorage.getItem('target_lang');
+        }
+
+        // Event Listeners
+        sourceText.addEventListener('input', () => {
+            updateCharCount();
+            toggleClearButton();
+            
+            // Auto translate with 800ms debounce
+            clearTimeout(debounceTimeout);
+            if (sourceText.value.trim() === '') {
+                clearTranslation();
+            } else {
+                debounceTimeout = setTimeout(performTranslation, 800);
+            }
+        });
+
+        sourceLanguage.addEventListener('change', () => {
+            localStorage.setItem('source_lang', sourceLanguage.value);
+            if (sourceText.value.trim() !== '') {
+                performTranslation();
+            }
+        });
+
+        targetLanguage.addEventListener('change', () => {
+            localStorage.setItem('target_lang', targetLanguage.value);
+            if (sourceText.value.trim() !== '') {
+                performTranslation();
+            }
+        });
+
+        clearBtn.addEventListener('click', () => {
+            sourceText.value = '';
+            clearTranslation();
+            updateCharCount();
+            toggleClearButton();
+            sourceText.focus();
+        });
+
+        swapBtn.addEventListener('click', () => {
+            const tempLang = sourceLanguage.value;
+            sourceLanguage.value = targetLanguage.value;
+            targetLanguage.value = tempLang;
+            
+            // Swap text contents if target has a translation
+            const sourceVal = sourceText.value;
+            const targetVal = targetText.innerText;
+            
+            if (targetVal.trim() !== '' && targetVal !== 'Translation Error!') {
+                sourceText.value = targetVal;
+                targetText.innerText = sourceVal;
+                updateCharCount();
+                toggleClearButton();
+            }
+
+            localStorage.setItem('source_lang', sourceLanguage.value);
+            localStorage.setItem('target_lang', targetLanguage.value);
+            
+            if (sourceText.value.trim() !== '') {
+                performTranslation();
+            }
+        });
+
+        copyBtn.addEventListener('click', () => {
+            const textToCopy = targetText.innerText;
+            if (textToCopy && textToCopy.trim() !== '') {
+                navigator.clipboard.writeText(textToCopy)
+                    .then(() => showToast('Copied to clipboard!'))
+                    .catch(err => {
+                        console.error('Failed to copy text: ', err);
+                        showToast('Failed to copy');
+                    });
+            } else {
+                showToast('Nothing to copy!');
+            }
+        });
+
+        translateBtn.addEventListener('click', performTranslation);
+
+        // TTS Speech Listeners
+        sourceSpeakBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            speakText(sourceText.value, sourceLanguage.value);
+        });
+
+        targetSpeakBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            speakText(targetText.innerText, targetLanguage.value);
+        });
+
+        // Initialize voices list loading
+        window.speechSynthesis.getVoices();
+
+        // Utility Functions
+        function updateCharCount() {
+            charCount.textContent = sourceText.value.length;
+        }
+
+        function toggleClearButton() {
+            if (sourceText.value.length > 0) {
+                clearBtn.classList.add('visible');
+            } else {
+                clearBtn.classList.remove('visible');
+            }
+        }
+
+        function clearTranslation() {
+            targetText.innerText = '';
+            targetText.classList.remove('active');
+            targetTextPlaceholder.style.display = 'block';
+        }
+
+        function showToast(message) {
+            toastMessage.textContent = message;
+            toast.classList.remove('hidden');
+            toast.classList.add('show');
+            setTimeout(() => {
+                toast.classList.remove('show');
+                setTimeout(() => toast.classList.add('hidden'), 300);
+            }, 2000);
+        }
+
+        function performTranslation() {
+            const text = sourceText.value.trim();
+            if (!text) {
+                clearTranslation();
+                return;
+            }
+
+            // Show loader
+            loader.classList.remove('hidden');
+            targetTextPlaceholder.style.display = 'none';
+
+            fetch('/api/translate', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    text: text,
+                    source: sourceLanguage.value,
+                    target: targetLanguage.value
+                })
+            })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                if (data.error) {
+                    targetText.innerText = 'Translation Error!';
+                } else {
+                    targetText.innerText = data.translated_text;
+                    targetText.classList.add('active');
+                    saveToHistory(text, data.translated_text, sourceLanguage.value, targetLanguage.value);
+                }
+            })
+            .catch(error => {
+                console.error('Translation error:', error);
+                targetText.innerText = 'Translation Error!';
+            })
+            .finally(() => {
+                loader.classList.add('hidden');
+            });
+        }
+
+        // Web Speech API Synthesis
+        function speakText(text, lang) {
+            if (!text || text.trim() === '') return;
+            
+            // Cancel current speaker
+            window.speechSynthesis.cancel();
+            
+            const utterance = new SpeechSynthesisUtterance(text);
+            
+            // BCP-47 Locale Map for common TTS voices
+            const localeMapping = {
+                'en': 'en-US',
+                'hi': 'hi-IN',
+                'mr': 'mr-IN',
+                'fr': 'fr-FR',
+                'de': 'de-DE',
+                'es': 'es-ES',
+                'ja': 'ja-JP',
+                'ko': 'ko-KR',
+                'zh-cn': 'zh-CN',
+                'zh-tw': 'zh-TW',
+                'ru': 'ru-RU',
+                'it': 'it-IT',
+                'pt': 'pt-PT',
+                'ar': 'ar-SA'
+            };
+            
+            utterance.lang = localeMapping[lang] || lang;
+            
+            // Find browser matching voice
+            const voices = window.speechSynthesis.getVoices();
+            const matchingVoice = voices.find(v => v.lang.startsWith(utterance.lang) || v.lang.startsWith(lang));
+            if (matchingVoice) {
+                utterance.voice = matchingVoice;
+            }
+            
+            window.speechSynthesis.speak(utterance);
+        }
+
+        // History Management
+        function saveToHistory(srcText, transText, srcLang, targetLang) {
+            if (!srcText.trim() || !transText.trim() || transText === 'Translation Error!') return;
+            
+            // Avoid duplicate inputs in a row
+            if (translationHistory.length > 0) {
+                const last = translationHistory[0];
+                if (last.sourceText === srcText && last.srcLang === srcLang && last.targetLang === targetLang) {
+                    return;
+                }
+            }
+            
+            const historyItem = {
+                id: Date.now(),
+                sourceText: srcText,
+                translatedText: transText,
+                srcLang: srcLang,
+                targetLang: targetLang,
+                srcLangName: sourceLanguage.options[sourceLanguage.selectedIndex].text,
+                targetLangName: targetLanguage.options[targetLanguage.selectedIndex].text,
+                timestamp: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+            };
+            
+            translationHistory.unshift(historyItem);
+            if (translationHistory.length > 50) {
+                translationHistory.pop();
+            }
+            
+            localStorage.setItem('translation_history', JSON.stringify(translationHistory));
+            renderHistory();
+        }
+
+        function deleteHistoryItem(id, event) {
+            event.stopPropagation();
+            translationHistory = translationHistory.filter(item => item.id !== id);
+            localStorage.setItem('translation_history', JSON.stringify(translationHistory));
+            renderHistory();
+        }
+
+        clearHistoryBtn.addEventListener('click', () => {
+            translationHistory = [];
+            localStorage.removeItem('translation_history');
+            renderHistory();
+            showToast('History cleared');
+        });
+
+        function restoreTranslation(item) {
+            sourceLanguage.value = item.srcLang;
+            targetLanguage.value = item.targetLang;
+            
+            localStorage.setItem('source_lang', item.srcLang);
+            localStorage.setItem('target_lang', item.targetLang);
+            
+            sourceText.value = item.sourceText;
+            targetText.innerText = item.translatedText;
+            targetText.classList.add('active');
+            targetTextPlaceholder.style.display = 'none';
+            
+            updateCharCount();
+            toggleClearButton();
+        }
+
+        function renderHistory() {
+            historyGrid.innerHTML = '';
+            if (translationHistory.length === 0) {
+                historyEmptyState.style.display = 'flex';
+                clearHistoryBtn.classList.add('hidden');
+            } else {
+                historyEmptyState.style.display = 'none';
+                clearHistoryBtn.classList.remove('hidden');
+                
+                translationHistory.forEach(item => {
+                    const card = document.createElement('div');
+                    card.className = 'history-card';
+                    card.addEventListener('click', () => restoreTranslation(item));
+                    
+                    card.innerHTML = `
+                        <div class="history-card-header">
+                            <span class="history-card-langs">${item.srcLangName} &rarr; ${item.targetLangName}</span>
+                            <span class="history-card-time">${item.timestamp}</span>
+                        </div>
+                        <div class="history-card-text source-snippet">${escapeHtml(item.sourceText)}</div>
+                        <div class="history-card-divider"></div>
+                        <div class="history-card-text target-snippet">${escapeHtml(item.translatedText)}</div>
+                        <button class="delete-card-btn" title="Delete translation" aria-label="Delete entry">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="3 6 5 6 21 6"></polyline>
+                                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+                            </svg>
+                        </button>
+                    `;
+                    
+                    card.querySelector('.delete-card-btn').addEventListener('click', (e) => deleteHistoryItem(item.id, e));
+                    historyGrid.appendChild(card);
+                });
+            }
+        }
+
+        function escapeHtml(text) {
+            const map = {
+                '&': '&amp;',
+                '<': '&lt;',
+                '>': '&gt;',
+                '"': '&quot;',
+                "'": '&#039;'
+            };
+            return text.replace(/[&<>"']/g, function(m) { return map[m]; });
+        }
+
+        // Initialize
+        updateCharCount();
+        toggleClearButton();
+        renderHistory();
+    </script>
+</body>
+</html>

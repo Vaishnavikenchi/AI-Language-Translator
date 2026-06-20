@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LinguaTranslate - AI Language Translator</title>
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body class="landing-body">
+
+    <!-- Ambient background glows -->
+    <div class="glow-blob glow-blob-1"></div>
+    <div class="glow-blob glow-blob-2"></div>
+
+    <div class="landing-container">
+        <!-- Navigation -->
+        <nav class="landing-nav">
+            <div class="logo-container">
+                <svg class="logo-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <line x1="2" y1="12" x2="22" y2="12"/>
+                    <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                </svg>
+                <span class="logo-text">LinguaTranslate</span>
+                <span class="logo-badge">Pro</span>
+            </div>
+            <a href="/translator" class="action-btn nav-cta">Launch App</a>
+        </nav>
+
+        <!-- Hero Section -->
+        <main class="hero-section">
+            <div class="hero-text-content">
+                <div class="hero-tag">AI-POWERED LANGUAGE TRANSLATION</div>
+                <h1 class="hero-headline">Break Language Barriers with <span class="glow-text">AI Precision</span></h1>
+                <p class="hero-description">
+                    Experience seamless real-time translations across 130+ languages, crystal-clear text-to-speech, and secure local translation history. Powered by advanced neural translation models.
+                </p>
+                <div class="hero-cta-group">
+                    <a href="/translator" class="primary-btn pulse-btn">
+                        <span>Start Translating</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="btn-icon">
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                            <polyline points="12 5 19 12 12 19"></polyline>
+                        </svg>
+                    </a>
+                </div>
+            </div>
+
+            <!-- Interactive Live Preview Widget -->
+            <div class="hero-widget-content">
+                <div class="live-preview-card">
+                    <div class="widget-header">
+                        <span class="pulse-dot"></span>
+                        <span class="widget-title">Live Translation Demo</span>
+                    </div>
+                    <div class="widget-panels">
+                        <div class="widget-panel">
+                            <div class="widget-panel-header">
+                                <span class="badge">English</span>
+                            </div>
+                            <div class="widget-panel-body">
+                                <p id="demoSourceText" class="demo-typing"></p>
+                            </div>
+                        </div>
+                        <div class="widget-panel-divider">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="arrow-icon">
+                                <line x1="5" y1="12" x2="19" y2="12"></line>
+                                <polyline points="12 5 19 12 12 19"></polyline>
+                            </svg>
+                        </div>
+                        <div class="widget-panel">
+                            <div class="widget-panel-header">
+                                <span id="demoTargetLang" class="badge">Spanish</span>
+                            </div>
+                            <div class="widget-panel-body demo-output-wrapper">
+                                <div id="demoLoader" class="demo-shimmer hidden"></div>
+                                <p id="demoTargetText" class="demo-result"></p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </main>
+
+        <!-- Features Grid -->
+        <section class="features-section">
+            <h2 class="section-title">Designed for Professional Standards</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"/>
+                            <line x1="2" y1="12" x2="22" y2="12"/>
+                            <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/>
+                        </svg>
+                    </div>
+                    <h3>130+ Global Languages</h3>
+                    <p>Communicate seamlessly with comprehensive support for the world's most widely spoken languages and dialects.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                            <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                        </svg>
+                    </div>
+                    <h3>Text-To-Speech Playback</h3>
+                    <p>Listen to crystal-clear pronunciations of both input and translated text in native accents.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle>
+                            <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                    </div>
+                    <h3>Secure Translation History</h3>
+                    <p>Your translation history is automatically stored securely on your local device—accessible anytime, 100% private.</p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-icon-wrapper">
+                        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <polygon points="12 2 2 22 12 17 22 22 12 2"></polygon>
+                        </svg>
+                    </div>
+                    <h3>Smart Instant API</h3>
+                    <p>Real-time translation fetching powered by intelligent debounced user typing inputs—fluid, instant results.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Stats Section -->
+        <section class="stats-section">
+            <div class="stat-item">
+                <span class="stat-number">130+</span>
+                <span class="stat-label">Languages Supported</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">&lt;150ms</span>
+                <span class="stat-label">Response Latency</span>
+            </div>
+            <div class="stat-item">
+                <span class="stat-number">100%</span>
+                <span class="stat-label">Private & Local History</span>
+            </div>
+        </section>
+
+        <!-- Footer -->
+        <footer class="landing-footer">
+            <p>&copy; 2026 LinguaTranslate Pro. Built for Professional and Accurate NLP Translation.</p>
+        </footer>
+    </div>
+
+    <!-- Live Preview Script -->
+    <script>
+        const phrases = [
+            { source: "Hello, welcome to LinguaTranslate!", targetLang: "Spanish", target: "¡Hola, bienvenido a LinguaTranslate!" },
+            { source: "Breaking language barriers together.", targetLang: "French", target: "Briser ensemble les barrières linguistiques." },
+            { source: "How can I translate this document?", targetLang: "German", target: "Wie kann ich dieses Dokument übersetzen?" },
+            { source: "Have a wonderful day, my friend!", targetLang: "Japanese", target: "素晴らしい一日を、私の友人！" }
+        ];
+
+        let currentPhraseIdx = 0;
+        const sourceEl = document.getElementById("demoSourceText");
+        const targetEl = document.getElementById("demoTargetText");
+        const targetLangEl = document.getElementById("demoTargetLang");
+        const loaderEl = document.getElementById("demoLoader");
+
+        function typeText(text, element, callback) {
+            let i = 0;
+            element.textContent = "";
+            const interval = setInterval(() => {
+                element.textContent += text[i];
+                i++;
+                if (i >= text.length) {
+                    clearInterval(interval);
+                    setTimeout(callback, 500);
+                }
+            }, 60);
+        }
+
+        function runDemoCycle() {
+            const current = phrases[currentPhraseIdx];
+            
+            // Step 1: Type source phrase
+            typeText(current.source, sourceEl, () => {
+                // Step 2: Show loader/shimmer
+                loaderEl.classList.remove("hidden");
+                targetEl.textContent = "";
+                targetLangEl.textContent = current.targetLang;
+
+                setTimeout(() => {
+                    // Step 3: Hide loader, show result
+                    loaderEl.classList.add("hidden");
+                    targetEl.textContent = current.target;
+                    
+                    // Step 4: Wait, then proceed to next cycle
+                    setTimeout(() => {
+                        currentPhraseIdx = (currentPhraseIdx + 1) % phrases.length;
+                        sourceEl.textContent = "";
+                        targetEl.textContent = "";
+                        setTimeout(runDemoCycle, 1000);
+                    }, 3000); // Wait 3s on display before clearing
+                }, 1000); // Shimmer for 1s
+            });
+        }
+
+        // Start Demo Loop after a brief delay
+        window.addEventListener("load", () => {
+            setTimeout(runDemoCycle, 800);
+        });
+    </script>
+</body>
+</html>
