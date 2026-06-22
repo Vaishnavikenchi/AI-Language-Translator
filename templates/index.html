@@ -207,32 +207,22 @@
         }
 
         // Event Listeners
-        sourceText.addEventListener('input', () => {
-            updateCharCount();
-            toggleClearButton();
-            
-            // Auto translate with 800ms debounce
-            clearTimeout(debounceTimeout);
-            if (sourceText.value.trim() === '') {
-                clearTranslation();
-            } else {
-                debounceTimeout = setTimeout(performTranslation, 800);
-            }
-        });
+       sourceText.addEventListener('input', () => {
+    updateCharCount();
+    toggleClearButton();
 
-        sourceLanguage.addEventListener('change', () => {
-            localStorage.setItem('source_lang', sourceLanguage.value);
-            if (sourceText.value.trim() !== '') {
-                performTranslation();
-            }
-        });
+    if (sourceText.value.trim() === '') {
+        clearTranslation();
+    }
+});
+
+       sourceLanguage.addEventListener('change', () => {
+    localStorage.setItem('source_lang', sourceLanguage.value);
+});
 
         targetLanguage.addEventListener('change', () => {
-            localStorage.setItem('target_lang', targetLanguage.value);
-            if (sourceText.value.trim() !== '') {
-                performTranslation();
-            }
-        });
+    localStorage.setItem('target_lang', targetLanguage.value);
+});
 
         clearBtn.addEventListener('click', () => {
             sourceText.value = '';
@@ -261,9 +251,7 @@
             localStorage.setItem('source_lang', sourceLanguage.value);
             localStorage.setItem('target_lang', targetLanguage.value);
             
-            if (sourceText.value.trim() !== '') {
-                performTranslation();
-            }
+           
         });
 
         copyBtn.addEventListener('click', () => {
@@ -287,11 +275,13 @@
             e.stopPropagation();
             speakText(sourceText.value, sourceLanguage.value);
         });
+        
+targetSpeakBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
 
-        targetSpeakBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            speakText(targetText.innerText, targetLanguage.value);
-        });
+    speakText(targetText.innerText, targetLanguage.value);
+});
+
 
         // Initialize voices list loading
         window.speechSynthesis.getVoices();
@@ -371,44 +361,16 @@
             });
         }
 
-        // Web Speech API Synthesis
-        function speakText(text, lang) {
-            if (!text || text.trim() === '') return;
-            
-            // Cancel current speaker
-            window.speechSynthesis.cancel();
-            
-            const utterance = new SpeechSynthesisUtterance(text);
-            
-            // BCP-47 Locale Map for common TTS voices
-            const localeMapping = {
-                'en': 'en-US',
-                'hi': 'hi-IN',
-                'mr': 'mr-IN',
-                'fr': 'fr-FR',
-                'de': 'de-DE',
-                'es': 'es-ES',
-                'ja': 'ja-JP',
-                'ko': 'ko-KR',
-                'zh-cn': 'zh-CN',
-                'zh-tw': 'zh-TW',
-                'ru': 'ru-RU',
-                'it': 'it-IT',
-                'pt': 'pt-PT',
-                'ar': 'ar-SA'
-            };
-            
-            utterance.lang = localeMapping[lang] || lang;
-            
-            // Find browser matching voice
-            const voices = window.speechSynthesis.getVoices();
-            const matchingVoice = voices.find(v => v.lang.startsWith(utterance.lang) || v.lang.startsWith(lang));
-            if (matchingVoice) {
-                utterance.voice = matchingVoice;
-            }
-            
-            window.speechSynthesis.speak(utterance);
-        }
+function speakText(text, lang) {
+    if (!text) return;
+
+    const utterance = new SpeechSynthesisUtterance(text);
+
+    utterance.lang = "hi-IN"; // temporary test
+
+    speechSynthesis.cancel();
+    speechSynthesis.speak(utterance);
+}
 
         // History Management
         function saveToHistory(srcText, transText, srcLang, targetLang) {
